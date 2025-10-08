@@ -38,6 +38,7 @@
             align-items: center;
             padding: 1rem;
             animation: fadeIn 0.5s ease-in-out;
+            z-index: 1;
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .page-scrollable {
@@ -93,7 +94,7 @@
         .crystal-surface .suggestion-card p {
             color: #d1d5db;
         }
-        .circle { position: fixed; left: 50%; top: 50%; width: var(--size); height: var(--size); filter: url(#wavy) blur(1px); z-index: -1; animation: rotate-counter-clockwise 30s linear infinite; }
+        .circle { position: fixed; left: 50%; top: 50%; width: var(--size); height: var(--size); filter: url(#wavy) blur(1px); animation: rotate-counter-clockwise 30s linear infinite; }
         .circle:before, .circle:after { content: ""; position: absolute; top: var(--s); left: var(--s); right: var(--s); bottom: var(--s); border-radius: 50%; border: var(--bor) solid #fff; }
         .circle:before { box-shadow: 0 0 var(--boxShadow) #0f0, inset 0 0 var(--boxShadow) #0f0; animation: move 5s linear infinite; }
         .circle:after { box-shadow: 0 0 calc(var(--bor)/2) #fff, inset 0 0 var(--bor) #fff; }

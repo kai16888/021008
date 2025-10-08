@@ -80,15 +80,17 @@ const InpaintingCanvas = forwardRef<InpaintingCanvasRef, InpaintingCanvasProps>(
         const maskCtx = maskCanvas.getContext('2d');
         if (!maskCtx) return true;
         const maskData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height).data;
-        for (let i = 3; i < maskData.length; i += 4) {
-            if (maskData[i] > 0) return false;
+        for (let i = 0; i < maskData.length; i += 4) {
+            if (maskData[i] > 0 || maskData[i+1] > 0 || maskData[i+2] > 0) {
+                 return false;
+            }
         }
         return true;
     },
     reset: resetCanvas,
   }));
 
-  const getMousePos = (e: React.MouseEvent | React.TouchEvent) => {
+  const getMousePos = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
@@ -101,19 +103,16 @@ const InpaintingCanvas = forwardRef<InpaintingCanvasRef, InpaintingCanvasProps>(
       clientX = e.nativeEvent.clientX;
       clientY = e.nativeEvent.clientY;
     }
-    return { x: clientX - rect.left, y: clientY - rect.top };
-  };
 
-  const startDrawing = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    if (!activeInstructionColors.has(brushColor)) {
-        setActiveInstructionColors(prev => new Set(prev).add(brushColor));
-    }
-    setIsDrawing(true);
-    const pos = getMousePos(e);
-    lastPos.current = pos;
-  }, [brushColor, activeInstructionColors]);
-  
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    return { 
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY 
+    };
+  }, []);
+
   const draw = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     if (!isDrawing) return;
     e.preventDefault();
@@ -143,8 +142,19 @@ const InpaintingCanvas = forwardRef<InpaintingCanvasRef, InpaintingCanvasProps>(
     maskCtx.stroke();
     
     lastPos.current = pos;
-  }, [isDrawing, brushColor, brushSize]);
+  }, [isDrawing, brushColor, brushSize, getMousePos]);
 
+  const startDrawing = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    if (!activeInstructionColors.has(brushColor)) {
+        setActiveInstructionColors(prev => new Set(prev).add(brushColor));
+    }
+    setIsDrawing(true);
+    const pos = getMousePos(e);
+    lastPos.current = pos;
+    draw(e); // Draw a dot on initial click
+  }, [brushColor, activeInstructionColors, getMousePos, draw]);
+  
   const stopDrawing = useCallback(() => {
     setIsDrawing(false);
   }, []);
@@ -197,7 +207,6 @@ const InpaintingCanvas = forwardRef<InpaintingCanvasRef, InpaintingCanvasProps>(
             </div>
         </div>
         <div className="w-full max-w-xl space-y-3 mt-4">
-          {/* FIX: Explicitly type `color` as string to prevent it from being inferred as `unknown`. */}
           {Array.from(activeInstructionColors).map((color: string) => (
             <div key={color} className="instruction-box">
               <label className="block text-sm font-bold mb-1" style={{ color: color, textShadow: `0 0 5px ${color}` }}>{COLOR_NAMES[color]}區域指令</label>
