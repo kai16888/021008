@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Magic Image Alchemist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --size: 110vh;
+            --s: calc(var(--size) / 6);
+            --bor: calc(var(--size) / 30);
+            --boxShadow: calc(var(--size) / 12);
+            --hexagram-svg: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='50,0 6.7,75 93.3,75' fill='none' stroke='%23fff' stroke-width='2'/%3E%3Cpolygon points='50,100 6.7,25 93.3,25' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E");
+        }
+        body { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            background-color: #000;
+            color: #f3f4f6;
+            overflow: hidden;
+        }
+        #root {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .page {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .page-scrollable {
+            justify-content: flex-start;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .crystal-surface {
+            background: rgba(10, 10, 15, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            width: 100%;
+            max-width: 900px;
+        }
+        .crystal-surface h2, .crystal-surface label, .crystal-surface p {
+             color: #f3f4f6;
+        }
+        .crystal-surface #file-name {
+            color: #d1d5db;
+        }
+        .crystal-surface input, .crystal-surface textarea {
+            background-color: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        .crystal-surface input::placeholder, .crystal-surface textarea::placeholder {
+            color: #9ca3af;
+        }
+        .crystal-surface input:focus, .crystal-surface textarea:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+            background-color: rgba(0,0,0,0.4);
+            outline: none;
+        }
+        .crystal-surface .border-dashed {
+            border-color: rgba(255,255,255,0.3);
+        }
+        .crystal-surface .suggestion-card {
+            background-color: rgba(0,0,0,0.2);
+            border-color: rgba(255,255,255,0.2);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .crystal-surface .suggestion-card:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.4);
+        }
+        .crystal-surface .suggestion-card h4 {
+             color: #f9fafb;
+        }
+        .crystal-surface .suggestion-card p {
+            color: #d1d5db;
+        }
+        .circle { position: fixed; left: 50%; top: 50%; width: var(--size); height: var(--size); filter: url(#wavy) blur(1px); z-index: -1; animation: rotate-counter-clockwise 30s linear infinite; }
+        .circle:before, .circle:after { content: ""; position: absolute; top: var(--s); left: var(--s); right: var(--s); bottom: var(--s); border-radius: 50%; border: var(--bor) solid #fff; }
+        .circle:before { box-shadow: 0 0 var(--boxShadow) #0f0, inset 0 0 var(--boxShadow) #0f0; animation: move 5s linear infinite; }
+        .circle:after { box-shadow: 0 0 calc(var(--bor)/2) #fff, inset 0 0 var(--bor) #fff; }
+        @keyframes move {
+            0% { box-shadow: 0 0 var(--boxShadow) #0f0, inset 0 0 var(--boxShadow) #0f0; filter: hue-rotate(0deg); }
+            50% { box-shadow: 0 0 80px #0f0, inset 0 0 80px #0f0; }
+            100% { box-shadow: 0 0 var(--boxShadow) #0f0, inset 0 0 var(--boxShadow) #0f0; filter: hue-rotate(360deg); }
+        }
+        @keyframes rotate-counter-clockwise { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(-360deg); } }
+        .hexagram { position: absolute; top: 50%; left: 50%; width: calc(var(--s) * 3.8); height: calc(var(--s) * 3.8); animation: hex-anim 20s linear infinite; background-image: var(--hexagram-svg); background-repeat: no-repeat; background-size: contain; background-position: center; }
+        @keyframes hex-anim {
+            0% { filter: drop-shadow(0 0 10px #0f0) drop-shadow(0 0 25px #0f0) hue-rotate(0deg); transform: translate(-50%, -50%) rotate(0deg); }
+            100% { filter: drop-shadow(0 0 10px #0f0) drop-shadow(0 0 25px #0f0) hue-rotate(360deg); transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        .root-container.magic-hover .circle:before { animation-duration: 2s; }
+        .root-container.magic-hover .hexagram { animation-duration: 8s; }
+        
+        /* CUBE BUTTON STYLES */
+        .button-3d-wrapper { perspective: 1000px; display: flex; justify-content: center; align-items: center; width: 150px; height: 150px; cursor: pointer; }
+        .cube { position: relative; width: 75px; height: 75px; transform-style: preserve-3d; animation: spin-cube-seamless 15s linear infinite; }
+        @keyframes spin-cube-seamless { from { transform: rotate3d(1, 1, 0, 0deg); } to { transform: rotate3d(1, 1, 0, 360deg); } }
+        .face { position: absolute; left: 0; top: 0; width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; color: #fff; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); font-size: 40px; font-weight: 400; transition: background 0.3s, border 0.3s; border: 1px solid rgba(255, 255, 255, 0.2); box-sizing: border-box; animation: move-button 5s linear infinite; }
+        @keyframes move-button {
+            0% { box-shadow: 0 0 8px #0f0, inset 0 0 8px #0f0; filter: hue-rotate(0deg); }
+            50% { box-shadow: 0 0 15px #0f0, inset 0 0 15px #0f0; }
+            100% { box-shadow: 0 0 8px #0f0, inset 0 0 8px #0f0; filter: hue-rotate(360deg); }
+        }
+        .button-3d-wrapper:hover .face { background: rgba(255, 255, 255, 0.25); border: 1px solid rgba(255, 255, 255, 0.4); }
+        .face:nth-child(1) { transform: rotateY(0deg) translateZ(37.5px); } .face:nth-child(2) { transform: rotateY(180deg) translateZ(37.5px); }
+        .face:nth-child(3) { transform: rotateY(90deg) translateZ(37.5px); } .face:nth-child(4) { transform: rotateY(-90deg) translateZ(37.5px); }
+        .face:nth-child(5) { transform: rotateX(90deg) translateZ(37.5px); } .face:nth-child(6) { transform: rotateX(-90deg) translateZ(37.5px); }
+        .button-3d-wrapper.is-analyzing .cube { animation-duration: 1.5s !important; }
+        .button-3d-wrapper.is-loading { pointer-events: none; opacity: 0.7; }
+        .button-3d-wrapper.is-loading .cube { animation-duration: 1s !important; }
+        .button-3d-wrapper--small { width: 80px; height: 80px; }
+        .button-3d-wrapper--small .cube { width: 50px; height: 50px; animation-duration: 12s; }
+        .button-3d-wrapper--small .face { width: 50px; height: 50px; font-size: 28px; }
+        .button-3d-wrapper--small .face:nth-child(1) { transform: rotateY(0deg) translateZ(25px); } .button-3d-wrapper--small .face:nth-child(2) { transform: rotateY(180deg) translateZ(25px); }
+        .button-3d-wrapper--small .face:nth-child(3) { transform: rotateY(90deg) translateZ(25px); } .button-3d-wrapper--small .face:nth-child(4) { transform: rotateY(-90deg) translateZ(25px); }
+        .button-3d-wrapper--small .face:nth-child(5) { transform: rotateX(90deg) translateZ(25px); } .button-3d-wrapper--small .face:nth-child(6) { transform: rotateX(-90deg) translateZ(25px); }
+        
+        /* RESULT GRID STYLES */
+        @keyframes selected-glow {
+            0% { border-color: #60a5fa; box-shadow: 0 0 16px rgba(59, 130, 246, 0.7), 0 0 4px rgba(96, 165, 250, 1); filter: hue-rotate(0deg); }
+            100% { border-color: #60a5fa; box-shadow: 0 0 16px rgba(59, 130, 246, 0.7), 0 0 4px rgba(96, 165, 250, 1); filter: hue-rotate(360deg); }
+        }
+        .result-cell { transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out; border-color: rgba(255, 255, 255, 0.2); }
+        .result-cell:not(.selected):hover { border-color: rgba(255, 255, 255, 0.8); box-shadow: 0 0 12px rgba(255, 255, 255, 0.5); }
+        .result-cell .selection-overlay { opacity: 0; transition: opacity 0.2s ease-in-out; }
+        .result-cell.selected { animation: selected-glow 4s linear infinite; }
+        .result-cell.selected .selection-overlay { opacity: 1; }
+
+        /* INPAINTING STYLES */
+        #inpainting-canvas { touch-action: none; background-size: cover; background-position: center; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #60a5fa; cursor: pointer; box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.5); margin-top: -8px; }
+        @keyframes idle-glow {
+            0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.4); } 50% { box-shadow: 0 0 12px rgba(255, 255, 255, 0.8); } 100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.4); }
+        }
+        .color-btn { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; animation: idle-glow 3s linear infinite; }
+        .color-btn:hover { transform: scale(1.1); animation: none; }
+        .color-btn.active { border-color: #60a5fa; transform: scale(1.15); box-shadow: 0 0 12px #60a5fa, 0 0 5px #fff; animation: none; }
+        .instruction-box textarea { border-left-width: 4px; }
+        
+        @media (max-width: 768px) {
+            .circle, .hexagram { display: none; }
+            .page, .progress__bar { animation: none !important; }
+        }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.22.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <svg style="width: 0; height: 0; position: fixed;">
+      <filter id="wavy">
+        <feTurbulence x="0" y="0" baseFrequency="0.009" numOctaves="5" seed="2">
+          <animate attributeName="baseFrequency" dur="60s" values="0.02; 0.005; 0.02" repeatCount="indefinite">
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" scale="30"></feDisplacementMap>
+      </filter>
+    </svg>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

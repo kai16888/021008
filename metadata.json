@@ -1,0 +1,5 @@
+{
+  "name": "Magic Image Alchemist",
+  "description": "An application to generate and edit images using AI, featuring background injection and magical inpainting capabilities.",
+  "requestFramePermissions": []
+}
